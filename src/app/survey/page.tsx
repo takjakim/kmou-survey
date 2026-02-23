@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { KMOU_SURVEY_QUESTIONS, SURVEY_SECTIONS, type SurveyQuestion } from '@/data/kmou-questions';
 import { useSurveyStore } from '@/store/surveyStore';
@@ -82,6 +82,7 @@ export default function SurveyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPartTransition, setShowPartTransition] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const submissionIdRef = useRef<string | null>(null);
 
   // Build pages from ALL questions (including conditional ones)
   const allPages = useMemo(() => buildPages(KMOU_SURVEY_QUESTIONS), []);
@@ -197,7 +198,28 @@ export default function SurveyPage() {
     }
   }, [pageIndex]);
 
+  const savePartial = useCallback(async () => {
+    try {
+      const res = await fetch('/api/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          responses,
+          id: submissionIdRef.current || undefined,
+          status: 'partial',
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        submissionIdRef.current = data.id;
+      }
+    } catch (error) {
+      console.error('Partial save error:', error);
+    }
+  }, [responses]);
+
   const handlePartTransitionContinue = () => {
+    savePartial();
     setShowPartTransition(false);
     setPageIndex(pageIndex + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -209,7 +231,11 @@ export default function SurveyPage() {
       const res = await fetch('/api/responses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ responses }),
+        body: JSON.stringify({
+          responses,
+          id: submissionIdRef.current || undefined,
+          status: 'complete',
+        }),
       });
       if (res.ok) {
         const data = await res.json();
