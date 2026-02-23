@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SURVEY_META } from '@/data/kmou-questions';
-import { ClipboardList, GraduationCap, Gift, Clock, ChevronRight, Shield } from 'lucide-react';
+import { ClipboardList, GraduationCap, Gift, Clock, ChevronRight, Shield, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -20,6 +20,16 @@ const content = {
     partC: { title: '커피 기프티콘', desc: '설문 참여자 전원에게 커피 기프티콘을 지급합니다' },
     ctaKo: '설문 시작하기',
     ctaEn: 'Start Survey (English)',
+    privacy: {
+      title: '개인정보 수집·이용 동의',
+      items: [
+        { label: '수집 항목', value: '소속 학과, 과정, 학기, 연락처(커피 기프티콘 발송용)' },
+        { label: '수집 목적', value: '비교과 프로그램 만족도 조사 및 교육환경 개선, 기프티콘 발송' },
+        { label: '보유 기간', value: '조사 완료 후 1년 이내 파기' },
+      ],
+      notice: '※ 동의를 거부할 수 있으며, 거부 시 설문 참여 및 기프티콘 수령이 제한됩니다.',
+      agree: '위 개인정보 수집·이용에 동의합니다.',
+    },
     footerPrivacy: '응답 내용은 통계 목적으로만 활용되며, 개인정보는 철저히 보호됩니다.',
     footerCopy: '© 2025 국립한국해양대학교 대학원. All rights reserved.',
   },
@@ -34,6 +44,16 @@ const content = {
     partC: { title: 'Coffee Gift Card', desc: 'All participants will receive a coffee gift card' },
     ctaKo: '설문 시작하기 (한국어)',
     ctaEn: 'Start Survey (English)',
+    privacy: {
+      title: 'Consent to Collection and Use of Personal Information',
+      items: [
+        { label: 'Data Collected', value: 'Department, program, semester, contact info (for gift card delivery)' },
+        { label: 'Purpose', value: 'Extracurricular program satisfaction survey, education improvement, gift card delivery' },
+        { label: 'Retention', value: 'Destroyed within 1 year after survey completion' },
+      ],
+      notice: '※ You may refuse consent. If refused, survey participation and gift card receipt will be restricted.',
+      agree: 'I agree to the collection and use of personal information as described above.',
+    },
     footerPrivacy: 'All responses are used for statistical purposes only. Your privacy is fully protected.',
     footerCopy: '© 2025 Korea Maritime & Ocean University Graduate School. All rights reserved.',
   },
@@ -43,6 +63,7 @@ type Lang = 'ko' | 'en';
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>('ko');
+  const [agreed, setAgreed] = useState(false);
   const t = content[lang];
 
   return (
@@ -154,27 +175,80 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Privacy Consent */}
+      <div className="max-w-2xl mx-auto px-4 pb-8">
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-6">
+          <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-blue-300" />
+            {t.privacy.title}
+          </h3>
+
+          <div className="bg-white/5 rounded-xl p-4 mb-4 space-y-2">
+            {t.privacy.items.map((item, i) => (
+              <div key={i} className="flex gap-2 text-sm">
+                <span className="text-blue-300 font-medium whitespace-nowrap">{item.label}:</span>
+                <span className="text-blue-100">{item.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-blue-300 mb-4">{t.privacy.notice}</p>
+
+          <button
+            onClick={() => setAgreed(!agreed)}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+              agreed
+                ? 'border-emerald-400 bg-emerald-500/20'
+                : 'border-white/30 hover:border-white/50'
+            }`}
+          >
+            <div className={`flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+              agreed
+                ? 'bg-emerald-500 border-emerald-500'
+                : 'border-white/40'
+            }`}>
+              {agreed && <CheckCircle2 className="h-4 w-4 text-white" />}
+            </div>
+            <span className={`text-sm font-medium ${agreed ? 'text-emerald-200' : 'text-blue-100'}`}>
+              {t.privacy.agree}
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="max-w-4xl mx-auto px-4 pb-16 text-center">
         <div className="flex flex-row items-center justify-center gap-4 flex-wrap">
-          <Link href="/survey">
+          {agreed ? (
+            <>
+              <Link href="/survey">
+                <Button
+                  size="lg"
+                  className="bg-white text-blue-900 hover:bg-blue-50 text-base px-8 py-6 rounded-xl font-semibold shadow-lg"
+                >
+                  {t.ctaKo}
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/en/survey">
+                <Button
+                  size="lg"
+                  className="bg-white/10 text-white border border-white hover:bg-white/20 text-base px-8 py-6 rounded-xl font-semibold"
+                >
+                  {t.ctaEn}
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </>
+          ) : (
             <Button
               size="lg"
-              className="bg-white text-blue-900 hover:bg-blue-50 text-base px-8 py-6 rounded-xl font-semibold shadow-lg"
+              disabled
+              className="bg-white/20 text-white/50 text-base px-8 py-6 rounded-xl font-semibold cursor-not-allowed"
             >
-              {t.ctaKo}
-              <ChevronRight className="ml-2 h-5 w-5" />
+              {lang === 'ko' ? '개인정보 수집·이용에 동의해 주세요' : 'Please agree to the privacy terms above'}
             </Button>
-          </Link>
-          <Link href="/en/survey">
-            <Button
-              size="lg"
-              className="bg-white/10 text-white border border-white hover:bg-white/20 text-base px-8 py-6 rounded-xl font-semibold"
-            >
-              {t.ctaEn}
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          )}
         </div>
       </div>
 
