@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SURVEY_META } from '@/data/kmou-questions';
 import { ClipboardList, GraduationCap, Gift, Clock, ChevronRight, Shield } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const content = {
   ko: {
@@ -74,6 +75,19 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-12 text-center">
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-2xl px-6 py-3 shadow-lg">
+            <Image
+              src="/kmou-logo.png"
+              alt="국립한국해양대학교 로고"
+              width={280}
+              height={60}
+              priority
+              className="h-12 md:h-14 w-auto"
+            />
+          </div>
+        </div>
+
         <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 mb-8 text-sm">
           <GraduationCap className="h-4 w-4" />
           <span>{t.badge}</span>
