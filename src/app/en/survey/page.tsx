@@ -332,7 +332,7 @@ export default function SurveyPageEN() {
             <div key={q.id} id={`q-${q.id}`}>
               <Card className={`shadow-sm transition-all ${validationErrors[q.id] ? 'ring-2 ring-red-300' : ''}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-medium leading-relaxed">
+                  <CardTitle className="text-base font-medium leading-relaxed break-keep">
                     <span className="text-blue-600 mr-2">{q.id}.</span>
                     {q.title}
                     {q.required && <span className="text-red-500 ml-1">*</span>}

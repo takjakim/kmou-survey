@@ -51,7 +51,7 @@ function RadioQuestion({
           }`}
         >
           <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-          <span className="flex-1 text-sm">{option}</span>
+          <span className="flex-1 text-sm break-keep">{option}</span>
         </label>
       ))}
     </RadioGroup>
@@ -104,7 +104,7 @@ function CheckboxQuestion({
               disabled={isDisabled}
               className="pointer-events-none"
             />
-            <span className={`flex-1 text-sm ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+            <span className={`flex-1 text-sm break-keep ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
               {option}
             </span>
           </div>
@@ -280,7 +280,7 @@ function RankingQuestion({
             >
               {isSelected ? rank + 1 : '-'}
             </div>
-            <span className={isSelected ? 'font-medium text-blue-900' : ''}>{option}</span>
+            <span className={`break-keep ${isSelected ? 'font-medium text-blue-900' : ''}`}>{option}</span>
           </button>
         );
       })}
