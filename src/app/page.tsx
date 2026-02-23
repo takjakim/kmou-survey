@@ -76,14 +76,15 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-12 text-center">
         <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-2xl px-6 py-3 shadow-lg">
+          <div className="bg-white rounded-2xl px-8 py-4 shadow-lg">
             <Image
-              src="/kmou-logo.png"
-              alt="국립한국해양대학교 로고"
-              width={280}
-              height={60}
+              src="/kmou-logo-full.gif"
+              alt="국립한국해양대학교 BrainKorea21 로고"
+              width={440}
+              height={50}
               priority
-              className="h-12 md:h-14 w-auto"
+              unoptimized
+              className="h-10 md:h-12 w-auto"
             />
           </div>
         </div>
