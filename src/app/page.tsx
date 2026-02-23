@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SURVEY_META } from '@/data/kmou-questions';
+import { SURVEY_META_EN } from '@/data/kmou-questions-en';
 import { ClipboardList, GraduationCap, Gift, Clock, ChevronRight, Shield, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -60,7 +61,7 @@ const content = {
     title: 'Korea Maritime & Ocean University\nGraduate School Survey',
     description:
       'This survey aims to assess satisfaction with extracurricular programs and evaluate the graduate education and research environment. All responses will be used for statistical purposes only, and your privacy is fully protected.',
-    time: `Estimated time: ${SURVEY_META.estimatedTime}`,
+    time: `Estimated time: ${SURVEY_META_EN.estimatedTime}`,
     partA: { title: 'Part A', desc: 'Extracurricular Program Satisfaction & Demand' },
     partB: { title: 'Part B', desc: 'Education & Research Environment Satisfaction' },
     partC: { title: 'Coffee Gift Card', desc: 'All participants will receive a coffee gift card' },
