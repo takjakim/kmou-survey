@@ -22,13 +22,35 @@ const content = {
     ctaEn: 'Start Survey (English)',
     privacy: {
       title: '개인정보 수집·이용 동의',
-      items: [
-        { label: '수집 항목', value: '소속 학과, 과정, 학기, 연락처(커피 기프티콘 발송용)' },
-        { label: '수집 목적', value: '비교과 프로그램 만족도 조사 및 교육환경 개선, 기프티콘 발송' },
-        { label: '보유 기간', value: '조사 완료 후 1년 이내 파기' },
-      ],
-      notice: '※ 동의를 거부할 수 있으며, 거부 시 설문 참여 및 기프티콘 수령이 제한됩니다.',
-      agree: '위 개인정보 수집·이용에 동의합니다.',
+      clause: `「개인정보 보호법」 제15조 및 제17조에 따라 아래와 같이 개인정보 수집·이용에 대해 안내드리며, 동의를 구합니다.
+
+1. 수집·이용 목적
+  - 대학원 비교과 프로그램 만족도 및 수요 조사
+  - 대학원 교육 및 연구환경 만족도 조사
+  - 설문 참여자 대상 커피 기프티콘 발송
+
+2. 수집하는 개인정보 항목
+  - 필수: 소속 학과(전공), 과정(석사/박사/석박통합), 학기
+  - 선택: 휴대전화 번호 (커피 기프티콘 발송 목적)
+
+3. 개인정보 보유 및 이용 기간
+  - 수집일로부터 3개월간 보유 후 지체 없이 파기
+  - 다만, 통계 처리 완료 후 개인 식별이 불가능한 형태로 가공된 통계자료는 보관할 수 있음
+
+4. 동의 거부권 및 불이익
+  - 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.
+  - 필수 항목 동의 거부 시 설문 참여가 제한됩니다.
+  - 선택 항목(휴대전화 번호) 동의 거부 시 커피 기프티콘 수령이 제한됩니다.
+
+5. 개인정보의 제3자 제공
+  - 수집된 개인정보는 제3자에게 제공하지 않습니다.
+
+6. 개인정보 처리 위탁
+  - 해당 없음
+
+7. 개인정보 보호책임자
+  - 국립한국해양대학교 대학원`,
+      agree: '위 개인정보 수집·이용 동의서의 내용을 충분히 읽고 이해하였으며, 이에 동의합니다.',
     },
     footerPrivacy: '응답 내용은 통계 목적으로만 활용되며, 개인정보는 철저히 보호됩니다.',
     footerCopy: '© 2025 국립한국해양대학교 대학원. All rights reserved.',
@@ -46,13 +68,35 @@ const content = {
     ctaEn: 'Start Survey (English)',
     privacy: {
       title: 'Consent to Collection and Use of Personal Information',
-      items: [
-        { label: 'Data Collected', value: 'Department, program, semester, contact info (for gift card delivery)' },
-        { label: 'Purpose', value: 'Extracurricular program satisfaction survey, education improvement, gift card delivery' },
-        { label: 'Retention', value: 'Destroyed within 1 year after survey completion' },
-      ],
-      notice: '※ You may refuse consent. If refused, survey participation and gift card receipt will be restricted.',
-      agree: 'I agree to the collection and use of personal information as described above.',
+      clause: `In accordance with Articles 15 and 17 of the Personal Information Protection Act, we inform you of the following regarding the collection and use of personal information and request your consent.
+
+1. Purpose of Collection and Use
+  - Graduate school extracurricular program satisfaction and demand survey
+  - Graduate education and research environment satisfaction survey
+  - Delivery of coffee gift cards to survey participants
+
+2. Personal Information Items Collected
+  - Required: Department (major), program (Master's/Doctoral/Combined), semester
+  - Optional: Mobile phone number (for gift card delivery)
+
+3. Retention and Use Period
+  - Retained for 3 months from the date of collection, then promptly destroyed
+  - However, anonymized statistical data may be retained after processing
+
+4. Right to Refuse and Consequences
+  - You have the right to refuse consent to the collection and use of personal information.
+  - Refusal of required items will restrict survey participation.
+  - Refusal of optional items (phone number) will restrict gift card receipt.
+
+5. Third-Party Disclosure
+  - Collected personal information will not be provided to third parties.
+
+6. Processing Entrustment
+  - Not applicable
+
+7. Personal Information Protection Officer
+  - Graduate School, Korea Maritime & Ocean University`,
+      agree: 'I have read and understood the above consent form and agree to the collection and use of my personal information.',
     },
     footerPrivacy: 'All responses are used for statistical purposes only. Your privacy is fully protected.',
     footerCopy: '© 2025 Korea Maritime & Ocean University Graduate School. All rights reserved.',
@@ -183,16 +227,11 @@ export default function HomePage() {
             {t.privacy.title}
           </h3>
 
-          <div className="bg-white/5 rounded-xl p-4 mb-4 space-y-2">
-            {t.privacy.items.map((item, i) => (
-              <div key={i} className="flex gap-2 text-sm">
-                <span className="text-blue-300 font-medium whitespace-nowrap">{item.label}:</span>
-                <span className="text-blue-100">{item.value}</span>
-              </div>
-            ))}
+          <div className="bg-white/5 rounded-xl p-4 mb-4 max-h-52 overflow-y-auto scrollbar-thin">
+            <pre className="text-sm text-blue-100 whitespace-pre-wrap font-sans leading-relaxed">
+              {t.privacy.clause}
+            </pre>
           </div>
-
-          <p className="text-xs text-blue-300 mb-4">{t.privacy.notice}</p>
 
           <button
             onClick={() => setAgreed(!agreed)}
