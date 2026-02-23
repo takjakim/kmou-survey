@@ -47,7 +47,9 @@ const content = {
   - 수집된 개인정보는 제3자에게 제공하지 않습니다.
 
 6. 개인정보 처리 위탁
-  - 해당 없음
+  - 위탁받는 자: 한국생산성본부(KPC)
+  - 위탁 업무: 설문 데이터 수집·처리 및 결과 분석
+  - 위탁 기간: 개인정보 보유 기간과 동일 (3개월)
 
 7. 개인정보 보호책임자
   - 국립한국해양대학교 대학원`,
@@ -93,7 +95,9 @@ const content = {
   - Collected personal information will not be provided to third parties.
 
 6. Processing Entrustment
-  - Not applicable
+  - Entrusted to: Korea Productivity Center (KPC)
+  - Scope: Survey data collection, processing, and analysis
+  - Period: Same as retention period (3 months)
 
 7. Personal Information Protection Officer
   - Graduate School, Korea Maritime & Ocean University`,
