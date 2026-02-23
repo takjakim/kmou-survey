@@ -395,7 +395,7 @@ export const KMOU_SURVEY_QUESTIONS: SurveyQuestion[] = [
     sectionTitle: '기본정보',
     type: 'radio',
     title: '소속',
-    options: ['일반대학원', '전문대학원', '특수대학원'],
+    options: ['일반대학원', '해사산업대학원', '해양과학기술전문대학원', '해양금융대학원', '글로벌물류대학원', '기타'],
     required: true,
   },
   {
@@ -1443,9 +1443,9 @@ export const KMOU_SURVEY_QUESTIONS: SurveyQuestion[] = [
     title: '소속 대학원',
     options: [
       '일반대학원',
-      '산업대학원',
       '해사산업대학원',
-      '수산과학대학원',
+      '해양과학기술전문대학원',
+      '해양금융대학원',
       '글로벌물류대학원',
       '기타',
     ],

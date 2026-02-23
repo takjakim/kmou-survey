@@ -385,7 +385,7 @@ export const KMOU_SURVEY_QUESTIONS_EN: SurveyQuestion[] = [
     sectionTitle: 'Basic Information',
     type: 'radio',
     title: 'Affiliation',
-    options: ['General Graduate School', 'Professional Graduate School', 'Special Graduate School'],
+    options: ['General Graduate School', 'Graduate School of Maritime Industrial Studies', 'Graduate School of Ocean Science and Technology', 'Graduate School of Maritime Finance', 'Graduate School of Global Logistics', 'Other'],
     required: true,
   },
   {
@@ -1456,9 +1456,9 @@ export const KMOU_SURVEY_QUESTIONS_EN: SurveyQuestion[] = [
     title: 'Affiliated Graduate School',
     options: [
       'General Graduate School',
-      'Graduate School of Industry',
       'Graduate School of Maritime Industrial Studies',
-      'Graduate School of Fisheries Science',
+      'Graduate School of Ocean Science and Technology',
+      'Graduate School of Maritime Finance',
       'Graduate School of Global Logistics',
       'Other',
     ],
