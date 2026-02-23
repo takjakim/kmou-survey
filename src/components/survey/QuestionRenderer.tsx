@@ -94,7 +94,7 @@ function CheckboxQuestion({
         return (
           <div
             key={option}
-            className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${
+            className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer select-none ${
               isChecked ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'
             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => !isDisabled && handleToggle(option)}
@@ -102,15 +102,11 @@ function CheckboxQuestion({
             <Checkbox
               checked={isChecked}
               disabled={isDisabled}
-              onCheckedChange={() => handleToggle(option)}
-              id={`${question.id}-${option}`}
+              className="pointer-events-none"
             />
-            <Label
-              htmlFor={`${question.id}-${option}`}
-              className={`flex-1 text-sm ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            >
+            <span className={`flex-1 text-sm ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
               {option}
-            </Label>
+            </span>
           </div>
         );
       })}
