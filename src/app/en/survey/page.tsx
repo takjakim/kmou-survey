@@ -135,10 +135,7 @@ export default function SurveyPageEN() {
     ? SURVEY_SECTIONS_EN.find((s) => s.id === currentPage.section)
     : null;
 
-  // TODO: Debug mode - validation disabled (uncomment below for production)
   const validatePage = useCallback((): boolean => {
-    return true; // Debug: allows proceeding without answers
-    /*
     if (!currentPage) return true;
     const errors: Record<string, string> = {};
 
@@ -163,7 +160,6 @@ export default function SurveyPageEN() {
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
-    */
   }, [currentPage, responses]);
 
   const handleNext = useCallback(() => {

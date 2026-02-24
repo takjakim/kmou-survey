@@ -135,10 +135,7 @@ export default function SurveyPage() {
     ? SURVEY_SECTIONS.find((s) => s.id === currentPage.section)
     : null;
 
-  // TODO: 디버깅 모드 - 필수 응답 검증 비활성화 (배포 시 아래 주석 해제)
   const validatePage = useCallback((): boolean => {
-    return true; // 디버깅용: 응답 없이도 넘어감
-    /*
     if (!currentPage) return true;
     const errors: Record<string, string> = {};
 
@@ -163,7 +160,6 @@ export default function SurveyPage() {
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
-    */
   }, [currentPage, responses]);
 
   const handleNext = useCallback(() => {
