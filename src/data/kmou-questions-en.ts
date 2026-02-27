@@ -50,6 +50,12 @@ export const SURVEY_SECTIONS_EN: SurveySection[] = [
   {
     id: 'A-5',
     part: 'A',
+    title: 'Local Settlement',
+    description: 'This section surveys your intention to reside in Korea and participate in start-up programs after graduation.',
+  },
+  {
+    id: 'A-6',
+    part: 'A',
     title: 'General Comments',
     description: 'This section collects overall opinions on extracurricular programs.',
   },
@@ -343,11 +349,34 @@ export const KMOU_SURVEY_QUESTIONS_EN: SurveyQuestion[] = [
     required: true,
   },
 
-  // --- Section A-5: General Comments ---
+  // --- Section A-5: Local Settlement ---
   {
     id: 'A-5-1',
     part: 'A',
     section: 'A-5',
+    sectionTitle: 'Local Settlement',
+    type: 'radio',
+    title: 'Do you intend to continue residing in Korea after completing/graduating from graduate school?',
+    options: ['Yes', 'No'],
+    required: false,
+  },
+  {
+    id: 'A-5-2',
+    part: 'A',
+    section: 'A-5',
+    sectionTitle: 'Local Settlement',
+    type: 'radio',
+    title: 'Are you willing to participate in start-up support programs in Korea for international students?',
+    helpText: '(For international students only) e.g., entrepreneurship education, funding support, Tech Start-up Visa (D-8-4), etc.',
+    options: ['Yes', 'No', 'Not interested'],
+    required: false,
+  },
+
+  // --- Section A-6: General Comments ---
+  {
+    id: 'A-6-1',
+    part: 'A',
+    section: 'A-6',
     sectionTitle: 'General Comments',
     type: 'checkbox',
     title: 'What are your reasons for not participating in programs? (Select if applicable)',
@@ -362,9 +391,9 @@ export const KMOU_SURVEY_QUESTIONS_EN: SurveyQuestion[] = [
     required: false,
   },
   {
-    id: 'A-5-2',
+    id: 'A-6-2',
     part: 'A',
-    section: 'A-5',
+    section: 'A-6',
     sectionTitle: 'General Comments',
     type: 'paragraph',
     title: 'Please share any suggestions for improving extracurricular programs.',

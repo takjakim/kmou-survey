@@ -75,6 +75,12 @@ export const SURVEY_SECTIONS: SurveySection[] = [
   {
     id: 'A-5',
     part: 'A',
+    title: '지역정주',
+    description: '졸업 후 한국 거주 및 창업 참여 의향을 조사합니다.',
+  },
+  {
+    id: 'A-6',
+    part: 'A',
     title: '종합의견',
     description: '비교과 프로그램에 대한 종합적인 의견을 수집합니다.',
   },
@@ -354,11 +360,34 @@ export const KMOU_SURVEY_QUESTIONS: SurveyQuestion[] = [
     required: true,
   },
 
-  // --- Section A-5: 종합의견 ---
+  // --- Section A-5: 지역정주 ---
   {
     id: 'A-5-1',
     part: 'A',
     section: 'A-5',
+    sectionTitle: '지역정주',
+    type: 'radio',
+    title: '대학원 수료/졸업 이후, 한국에 지속적으로 거주할 의향이 있는가?',
+    options: ['있다', '없다'],
+    required: false,
+  },
+  {
+    id: 'A-5-2',
+    part: 'A',
+    section: 'A-5',
+    sectionTitle: '지역정주',
+    type: 'radio',
+    title: '외국인 유학생 대상의 한국 내 창업(Start-up) 지원 프로그램에 참여할 의사가 있는가?',
+    helpText: '(외국인 유학생 전용) 창업 교육 / 지원금 지급 / 기술창업 비자 발급(D-8-4) 등',
+    options: ['있다', '없다', '관심없음'],
+    required: false,
+  },
+
+  // --- Section A-6: 종합의견 ---
+  {
+    id: 'A-6-1',
+    part: 'A',
+    section: 'A-6',
     sectionTitle: '종합의견',
     type: 'checkbox',
     title: '프로그램 미참여 사유는? (해당 시 선택)',
@@ -373,9 +402,9 @@ export const KMOU_SURVEY_QUESTIONS: SurveyQuestion[] = [
     required: false,
   },
   {
-    id: 'A-5-2',
+    id: 'A-6-2',
     part: 'A',
-    section: 'A-5',
+    section: 'A-6',
     sectionTitle: '종합의견',
     type: 'paragraph',
     title: '비교과 프로그램에 대한 개선 의견을 자유롭게 적어주세요.',

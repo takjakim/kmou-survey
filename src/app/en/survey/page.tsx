@@ -7,7 +7,7 @@ import { useSurveyStore } from '@/store/surveyStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { QuestionRendererEN } from '@/components/survey/QuestionRendererEN';
+import { QuestionRendererEN, ScaleMatrixRendererEN } from '@/components/survey/QuestionRendererEN';
 import { ChevronLeft, ChevronRight, Send, AlertCircle } from 'lucide-react';
 
 const PAGE_SIZE = 5;
@@ -17,22 +17,26 @@ interface SurveyPage {
   section: string;
   sectionTitle: string;
   part: 'A' | 'B' | 'C';
+  isMatrix?: boolean;
 }
 
 /**
  * Group questions into pages of ~PAGE_SIZE, splitting by:
  * 1. Part boundary (always new page)
  * 2. Section boundary (always new page)
- * 3. Within a section, chunk by PAGE_SIZE
- * 4. "Big" questions (ranking, paragraph, checkbox with many options) get their own page or smaller groups
+ * 3. Consecutive scale questions with the same scale range → single matrix page
+ * 4. "Big" questions (ranking, paragraph, checkbox with many options) get their own page
+ * 5. Within a section, chunk remaining questions by PAGE_SIZE
  */
 function buildPages(questions: SurveyQuestion[]): SurveyPage[] {
   const pages: SurveyPage[] = [];
   let currentBatch: SurveyQuestion[] = [];
+  let scaleBatch: SurveyQuestion[] = [];
   let currentSection = '';
   let currentPart = '';
+  let currentScaleKey = ''; // "min-max" key to detect scale range changes
 
-  const flush = () => {
+  const flushBatch = () => {
     if (currentBatch.length === 0) return;
     const first = currentBatch[0];
     pages.push({
@@ -44,35 +48,99 @@ function buildPages(questions: SurveyQuestion[]): SurveyPage[] {
     currentBatch = [];
   };
 
+  const flushScale = () => {
+    if (scaleBatch.length === 0) return;
+    const first = scaleBatch[0];
+    if (scaleBatch.length >= 3) {
+      pages.push({
+        questions: [...scaleBatch],
+        section: first.section,
+        sectionTitle: first.sectionTitle,
+        part: first.part,
+        isMatrix: true,
+      });
+    } else {
+      // Small scale runs fall into the normal batch
+      currentBatch.push(...scaleBatch);
+      // Flush if over PAGE_SIZE
+      while (currentBatch.length >= PAGE_SIZE) {
+        const chunk = currentBatch.splice(0, PAGE_SIZE);
+        const f = chunk[0];
+        pages.push({ questions: chunk, section: f.section, sectionTitle: f.sectionTitle, part: f.part });
+      }
+    }
+    scaleBatch = [];
+    currentScaleKey = '';
+  };
+
   for (const q of questions) {
-    // Part or section change -> flush
+    // Part or section change → flush everything
     if (q.part !== currentPart || q.section !== currentSection) {
-      flush();
+      flushScale();
+      flushBatch();
       currentPart = q.part;
       currentSection = q.section;
     }
 
-    // "Big" question types get their own page or small group
+    // "Big" question types get their own page
     const isBig = q.type === 'ranking' || q.type === 'paragraph' ||
       (q.type === 'checkbox' && (q.options?.length || 0) > 6);
 
     if (isBig) {
-      flush();
-      currentBatch.push(q);
-      flush();
+      flushScale();
+      flushBatch();
+      pages.push({
+        questions: [q],
+        section: q.section,
+        sectionTitle: q.sectionTitle,
+        part: q.part,
+      });
       continue;
     }
+
+    // Scale questions: accumulate into scale run if same range
+    if (q.type === 'scale') {
+      const scaleKey = `${q.scaleMin ?? 1}-${q.scaleMax ?? 5}`;
+      if (scaleBatch.length > 0 && scaleKey !== currentScaleKey) {
+        // Range changed — flush current scale run first
+        flushScale();
+      }
+      if (scaleBatch.length === 0) {
+        // Starting a new scale run: flush any pending normal batch
+        flushBatch();
+        currentScaleKey = scaleKey;
+      }
+      scaleBatch.push(q);
+      continue;
+    }
+
+    // Non-scale question: flush any open scale run first
+    flushScale();
 
     currentBatch.push(q);
 
     // Chunk by PAGE_SIZE
     if (currentBatch.length >= PAGE_SIZE) {
-      flush();
+      flushBatch();
     }
   }
 
-  flush();
+  flushScale();
+  flushBatch();
   return pages;
+}
+
+function getSubSectionLabel(questionId: string): string | null {
+  const map: Record<string, string> = {
+    'B-3-1-1': 'Educational Services',
+    'B-3-3-1': 'Curriculum & Academic Management',
+    'B-3-5-1': 'Educational Environment',
+    'B-4-1-1': 'Research Environment',
+    'B-4-3-1': 'Research & Career Exploration',
+    'B-4-6-1': 'Industry-Academia Cooperation',
+    'B-5-1-1': 'Career Support',
+  };
+  return map[questionId] || null;
 }
 
 export default function SurveyPageEN() {
@@ -260,10 +328,10 @@ export default function SurveyPageEN() {
     const nextPart = nextPage?.part;
     const nextPartLabel = nextPart === 'B'
       ? 'Part B: Graduate Education & Research Environment Satisfaction Survey'
-      : 'Prize Draw Entry';
+      : 'Part C: Additional Information';
     const nextPartDesc = nextPart === 'B'
       ? 'Please evaluate the educational services, curriculum, and research environment of the graduate school.'
-      : 'Thank you for participating in the survey. Please enter the following information to receive a coffee gift card.';
+      : 'Please enter additional information.';
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
@@ -289,7 +357,7 @@ export default function SurveyPageEN() {
     ? 'Part A: Extracurricular Programs'
     : currentPage.part === 'B'
       ? 'Part B: Education & Research Environment'
-      : 'Prize Draw Entry';
+      : 'Part C: Additional Information';
 
   const isLastPage = pageIndex === totalPages - 1;
 
@@ -301,12 +369,43 @@ export default function SurveyPageEN() {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-blue-600">{partLabel}</span>
             <span className="text-sm text-muted-foreground">
-              Page {pageIndex + 1} / {totalPages}
+              {Math.round(progress)}% Complete
             </span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
       </header>
+
+      {/* Part B section navigation */}
+      {currentPage.part === 'B' && (
+        <div className="sticky top-[52px] z-40 bg-white border-b">
+          <div className="max-w-3xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto scrollbar-hide" ref={(el) => {
+            if (el) {
+              const active = el.querySelector('[data-active="true"]');
+              if (active) {
+                active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+              }
+            }
+          }}>
+            {SURVEY_SECTIONS_EN.filter(s => s.part === 'B').map(section => {
+              const isActive = currentPage.section === section.id;
+              const sectionPageIndex = pages.findIndex(p => p.section === section.id);
+              return (
+                <button
+                  key={section.id}
+                  data-active={isActive}
+                  onClick={() => { setPageIndex(sectionPageIndex); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {section.id}: {section.title}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="max-w-3xl mx-auto px-4 py-8">
@@ -324,46 +423,77 @@ export default function SurveyPageEN() {
 
         {/* Questions on this page */}
         <div className="space-y-6">
-          {currentPage.questions.map((q, idx) => (
-            <div key={q.id} id={`q-${q.id}`}>
-              <Card className={`shadow-sm transition-all ${validationErrors[q.id] ? 'ring-2 ring-red-300' : ''}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-medium leading-relaxed break-keep">
-                    <span className="text-blue-600 mr-2">{q.id}.</span>
-                    {q.title}
-                    {q.required && <span className="text-red-500 ml-1">*</span>}
-                  </CardTitle>
-                  {q.helpText && (
-                    <CardDescription className="whitespace-pre-line">
-                      {q.helpText}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <QuestionRendererEN
-                    question={q}
-                    value={responses[q.id]}
-                    onChange={(value) => {
-                      setResponse(q.id, value);
-                      if (validationErrors[q.id]) {
-                        setValidationErrors((prev) => {
-                          const next = { ...prev };
-                          delete next[q.id];
-                          return next;
-                        });
-                      }
-                    }}
-                  />
-                  {validationErrors[q.id] && (
-                    <div className="flex items-center gap-2 mt-3 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                      {validationErrors[q.id]}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+          {currentPage.isMatrix ? (
+            <>
+              {getSubSectionLabel(currentPage.questions[0].id) && (
+                <div className="mb-4 px-1">
+                  <h3 className="text-sm font-semibold text-blue-700">
+                    {getSubSectionLabel(currentPage.questions[0].id)}
+                  </h3>
+                </div>
+              )}
+              <ScaleMatrixRendererEN
+                questions={currentPage.questions}
+                values={Object.fromEntries(
+                  currentPage.questions.map(q => [q.id, responses[q.id] as number | undefined])
+                )}
+                onChange={(qId, val) => {
+                  setResponse(qId, val);
+                  if (validationErrors[qId]) {
+                    setValidationErrors(prev => {
+                      const next = { ...prev };
+                      delete next[qId];
+                      return next;
+                    });
+                  }
+                }}
+                validationErrors={validationErrors}
+              />
+            </>
+          ) : (
+            <div className="space-y-6">
+              {currentPage.questions.map((q) => (
+                <div key={q.id} id={`q-${q.id}`}>
+                  <Card className={`shadow-sm transition-all ${validationErrors[q.id] ? 'ring-2 ring-red-300' : ''}`}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-medium leading-relaxed break-keep">
+                        <span className="text-blue-600 mr-2">{q.id}.</span>
+                        {q.title}
+                        {q.required && <span className="text-red-500 ml-1">*</span>}
+                      </CardTitle>
+                      {q.helpText && (
+                        <CardDescription className="whitespace-pre-line">
+                          {q.helpText}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <QuestionRendererEN
+                        question={q}
+                        value={responses[q.id]}
+                        onChange={(value) => {
+                          setResponse(q.id, value);
+                          if (validationErrors[q.id]) {
+                            setValidationErrors((prev) => {
+                              const next = { ...prev };
+                              delete next[q.id];
+                              return next;
+                            });
+                          }
+                        }}
+                      />
+                      {validationErrors[q.id] && (
+                        <div className="flex items-center gap-2 mt-3 text-red-500 text-sm">
+                          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                          {validationErrors[q.id]}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Navigation */}

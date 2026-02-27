@@ -285,3 +285,189 @@ function RankingQuestion({
     </div>
   );
 }
+
+// --- ScaleMatrixRendererEN ---
+
+interface ScaleMatrixProps {
+  questions: SurveyQuestion[];
+  values: Record<string, number | undefined>;
+  onChange: (questionId: string, value: number) => void;
+  validationErrors?: Record<string, string>;
+}
+
+const SCALE_LABELS_EN: Record<number, [string, string]> = {
+  1: ['Very', 'Dissatisfied'],
+  2: ['', 'Dissatisfied'],
+  3: ['', 'Neutral'],
+  4: ['', 'Satisfied'],
+  5: ['Very', 'Satisfied'],
+};
+
+/**
+ * Strips a leading ID prefix like "3-1. " or "Q1. " from a question title.
+ */
+function stripIdPrefix(title: string): string {
+  return title.replace(/^[\d\w]+-?[\d\w]*\.\s*/, '').replace(/^\d+\)\s*/, '');
+}
+
+export function ScaleMatrixRendererEN({ questions, values, onChange, validationErrors }: ScaleMatrixProps) {
+  if (questions.length === 0) return null;
+
+  const firstQ = questions[0];
+  const min = firstQ.scaleMin ?? 1;
+  const max = firstQ.scaleMax ?? 5;
+  const hasNA = max === 6;
+  const scaleMax = hasNA ? 5 : max;
+  const scalePoints = Array.from({ length: scaleMax - min + 1 }, (_, i) => min + i);
+
+  return (
+    <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      {/* Desktop table layout */}
+      <div className="hidden sm:block">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left text-xs font-medium text-gray-500 px-4 py-2 w-auto">Item</th>
+              {scalePoints.map((point) => (
+                <th
+                  key={point}
+                  className="text-center text-xs font-medium text-gray-500 px-1 py-2 w-14"
+                >
+                  <div>{point}</div>
+                  {SCALE_LABELS_EN[point] && (
+                    <div className="text-gray-400 font-normal leading-tight mt-0.5">
+                      {SCALE_LABELS_EN[point][0] && <div>{SCALE_LABELS_EN[point][0]}</div>}
+                      <div>{SCALE_LABELS_EN[point][1]}</div>
+                    </div>
+                  )}
+                </th>
+              ))}
+              {hasNA && (
+                <th className="text-center text-xs font-medium text-gray-500 px-2 py-2 w-20">
+                  N/A
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {questions.map((question, idx) => {
+              const currentValue = values[question.id];
+              const hasError = validationErrors?.[question.id];
+              const isEven = idx % 2 === 0;
+
+              return (
+                <tr
+                  key={question.id}
+                  className={`border-b border-gray-100 last:border-b-0 transition-colors ${
+                    isEven ? 'bg-white' : 'bg-gray-50/50'
+                  } ${hasError ? 'bg-red-50/40' : ''}`}
+                >
+                  <td className="px-4 py-2.5">
+                    <span className={`text-sm break-keep leading-snug ${hasError ? 'text-red-700' : 'text-gray-800'}`}>
+                      {stripIdPrefix(question.title)}
+                    </span>
+                    {hasError && (
+                      <span className="block text-xs text-red-500 mt-0.5">{hasError}</span>
+                    )}
+                  </td>
+                  {scalePoints.map((point) => {
+                    const isSelected = currentValue === point;
+                    return (
+                      <td key={point} className="px-2 py-2.5 text-center">
+                        <button
+                          type="button"
+                          onClick={() => onChange(question.id, point)}
+                          aria-label={`${question.title} - ${SCALE_LABELS_EN[point]?.join(' ').trim() ?? point} points`}
+                          className={`w-9 h-9 rounded-full border-2 text-sm font-medium transition-all mx-auto block ${
+                            isSelected
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-sm scale-110'
+                              : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:bg-blue-50'
+                          }`}
+                        >
+                          {point}
+                        </button>
+                      </td>
+                    );
+                  })}
+                  {hasNA && (
+                    <td className="px-2 py-2.5 text-center">
+                      <button
+                        type="button"
+                        onClick={() => onChange(question.id, 6)}
+                        aria-label={`${question.title} - N/A`}
+                        className={`px-2 py-1.5 rounded-lg border-2 text-xs font-medium transition-all mx-auto block whitespace-nowrap ${
+                          currentValue === 6
+                            ? 'bg-gray-600 border-gray-600 text-white shadow-sm'
+                            : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-50'
+                        }`}
+                      >
+                        N/A
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile stacked layout */}
+      <div className="sm:hidden divide-y divide-gray-200">
+        {questions.map((question, idx) => {
+          const currentValue = values[question.id];
+          const hasError = validationErrors?.[question.id];
+          const isEven = idx % 2 === 0;
+
+          return (
+            <div
+              key={question.id}
+              className={`px-4 py-4 ${isEven ? 'bg-white' : 'bg-gray-50/50'} ${hasError ? 'bg-red-50/40' : ''}`}
+            >
+              <p className={`text-sm break-keep mb-3 leading-relaxed font-medium ${hasError ? 'text-red-700' : 'text-gray-800'}`}>
+                {stripIdPrefix(question.title)}
+              </p>
+              {hasError && (
+                <p className="text-xs text-red-500 mb-1.5">{hasError}</p>
+              )}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {scalePoints.map((point) => {
+                  const isSelected = currentValue === point;
+                  return (
+                    <button
+                      key={point}
+                      type="button"
+                      onClick={() => onChange(question.id, point)}
+                      aria-label={`${SCALE_LABELS_EN[point]?.join(' ').trim() ?? point} points`}
+                      className={`w-11 h-11 rounded-full border-2 text-sm font-medium transition-all flex-shrink-0 ${
+                        isSelected
+                          ? 'bg-blue-600 border-blue-600 text-white shadow-sm scale-110'
+                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      {point}
+                    </button>
+                  );
+                })}
+                {hasNA && (
+                  <button
+                    type="button"
+                    onClick={() => onChange(question.id, 6)}
+                    aria-label="N/A"
+                    className={`px-2.5 py-1.5 rounded-lg border-2 text-xs font-medium transition-all flex-shrink-0 ${
+                      currentValue === 6
+                        ? 'bg-gray-600 border-gray-600 text-white shadow-sm'
+                        : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-50'
+                    }`}
+                  >
+                    N/A
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
