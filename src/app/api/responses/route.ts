@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import crypto from 'crypto';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     if (existingId) {
       // Update existing submission (partial save)
-      const { error } = await supabaseAdmin
+      const { error } = await getSupabaseAdmin()
         .from('kmou_survey_submissions')
         .update({
           responses,
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Insert new submission
-      const { error } = await supabaseAdmin
+      const { error } = await getSupabaseAdmin()
         .from('kmou_survey_submissions')
         .insert({
           id,

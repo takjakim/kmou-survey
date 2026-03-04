@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from('kmou_survey_submissions')
       .select('*')
       .order('submitted_at', { ascending: false });

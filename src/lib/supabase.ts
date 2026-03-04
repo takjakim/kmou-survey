@@ -1,13 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+let _supabaseAdmin: SupabaseClient | null = null;
 
-// Server-side client with service role key (for API routes)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
-// Public client for client-side (if needed)
-export const supabase = createClient(
-  supabaseUrl,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Server-side client with service role key (lazy init to avoid build-time errors)
+export function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)');
+    }
+    _supabaseAdmin = createClient(url, key);
+  }
+  return _supabaseAdmin;
+}
